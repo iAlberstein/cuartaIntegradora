@@ -1,0 +1,114 @@
+<h1>CARTELERA</h1>
+
+<form class="selectores" action="/" method="GET">
+    <label for="limit">Límite:</label>
+    <input type="number" name="limit" id="limit" value="{{#if query.limit}}{{query.limit}}{{else}}10{{/if}}">
+    <br>
+    <label for="page">Página:</label>
+    <input type="number" name="page" id="page" value="{{#if query.page}}{{query.page}}{{else}}1{{/if}}">
+    <br>
+    <label for="sort">Orden:</label>
+    <select name="sort" id="sort">
+        <option value="">Sin ordenar</option>
+        <option value="asc" {{#ifEqual query.sort "asc"}}selected{{/ifEqual}}>Ascendente</option>
+        <option value="desc" {{#ifEqual query.sort "desc"}}selected{{/ifEqual}}>Descendente</option>
+    </select>
+    <br>
+    <label for="query">Categorías:</label>
+    <select name="query" id="query">
+        <option value="">Todas</option>
+        {{#each payload.categories}}
+            <option value="{{this}}" {{#ifEqual this query.category}}selected{{/ifEqual}}>{{this}}</option>
+        {{/each}}
+    </select>
+
+    <br>
+    <button type="button" onclick="restoreDefaults()">Restaurar valores</button>
+    <button type="submit">Submit</button>
+</form>
+
+<div class="product">
+    {{#each payload.productos}}
+        <div class="card">
+            <img src="{{this.img}}" alt="{{this.title}}" class="card-image">
+            <div class="card-content">
+                <h2>{{this.title}}</h2>
+                <p class="description">{{this.description}}</p>
+                <p class="price">${{this.price}}</p>
+                <button>Agregar al carrito</button>
+            </div>
+        </div>
+    {{/each}}
+</div>
+
+<div class="paginadores">
+<div class="prevnext">
+    {{#if payload.pagination.hasPrevPage}}
+        <a href="{{payload.pagination.prevLink}}"> Anterior </a>
+    {{/if}}
+
+    {{#if payload.pagination.hasNextPage}}
+        <a href="{{payload.pagination.nextLink}}"> Siguiente </a>
+    {{/if}}
+</div>
+
+    <p>Página {{payload.pagination.currentPage}} de {{payload.pagination.totalPages}}</p>
+</div>
+
+
+<!-- home.handlebars -->
+
+<script>
+    // Función para restaurar los valores por defecto
+    function restoreDefaults() {
+        const limitInput = document.getElementById('limit');
+        const pageInput = document.getElementById('page');
+        const sortInput = document.getElementById('sort');
+        const queryInput = document.getElementById('query');    
+        // Restaurar los valores por defecto
+        limitInput.value = '10';
+        pageInput.value = '1';
+        sortInput.value = '';
+        queryInput.value = '';
+    }
+  // Obtener los elementos del formulario
+  const form = document.querySelector('.selectores');
+  const limitInput = document.getElementById('limit');
+  const pageInput = document.getElementById('page');
+  const sortInput = document.getElementById('sort');
+  const queryInput = document.getElementById('query');
+
+  // Obtener los valores del formulario de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const limitParam = urlParams.get('limit');
+  const pageParam = urlParams.get('page');
+  const sortParam = urlParams.get('sort');
+  const queryParam = urlParams.get('query');
+
+  // Asignar los valores del URL a los campos del formulario
+  limitInput.value = limitParam || '10';
+  pageInput.value = pageParam || '1';
+  sortInput.value = sortParam || '';
+  queryInput.value = queryParam || '';
+
+  // Escuchar el evento 'submit' del formulario
+  form.addEventListener('submit', function(event) {
+    // Prevenir el envío del formulario
+    event.preventDefault();
+
+    // Obtener los valores ingresados por el usuario
+    const limitValue = limitInput.value;
+    const pageValue = pageInput.value;
+    const sortValue = sortInput.value;
+    const queryValue = queryInput.value;
+
+    // Construir la URL con los parámetros del formulario
+    const url = `/products/?limit=${limitValue}&page=${pageValue}&sort=${sortValue}&query=${queryValue}`;
+
+    // Redireccionar a la URL construida
+    window.location.href = url;
+  });
+  
+</script>
+
+
