@@ -103,7 +103,7 @@
     const queryValue = queryInput.value;
 
     // Construir la URL con los parámetros del formulario
-    const url = `/products/?limit=${limitValue}&page=${pageValue}&sort=${sortValue}&query=${queryValue}`;
+    const url = `/api/products/?limit=${limitValue}&page=${pageValue}&sort=${sortValue}&query=${queryValue}`;
 
     // Redireccionar a la URL construida
     window.location.href = url;
