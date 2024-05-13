@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
 
     last_name : {
         type: String, 
-        required: true
+        //required: true
     },
 
     email : {
@@ -20,20 +20,20 @@ const userSchema = mongoose.Schema({
 
     password: {
         type: String, 
-        required: true
+        //required: true
     },
 
     age : {
         type: Number, 
-        required: true
+        //required: true
     },
 
     // Agregar campo para el rol del usuario con valor por defecto 'user'
-    role: {
-        type: String,
-        enum: ['user', 'admin'], // Asegurarse de que el rol sea 'user' o 'admin'
-        default: 'user' // Asignar 'user' como valor por defecto
-    }
+    //role: {
+    //    type: String,
+    //    enum: ['user', 'admin'], // Asegurarse de que el rol sea 'user' o 'admin'
+    //    default: 'user' // Asignar 'user' como valor por defecto
+    //}
 });
 
 const UserModel = mongoose.model("user", userSchema);
