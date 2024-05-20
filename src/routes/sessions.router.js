@@ -50,5 +50,13 @@ router.get("/githubcallback", passport.authenticate("github", {
     res.redirect("/profile");
 });
 
+router.get("/current", (req, res) => {
+    if (req.session.login && req.session.user) {
+        res.status(200).json({ user: req.session.user });
+    } else {
+        res.status(401).json({ error: 'No hay usuario autenticado' });
+    }
+});
+
 
 module.exports = router;
