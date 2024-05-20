@@ -48,6 +48,7 @@ router.get("/githubcallback", passport.authenticate("github", {
     req.session.user = req.user;
     req.session.login = true;
     res.redirect("/profile");
-})
+});
+
 
 module.exports = router;

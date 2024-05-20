@@ -11,7 +11,8 @@ router.post("/", passport.authenticate("register", {failureRedirect: "/failedreg
         last_name: req.user.last_name,
         age: req.user.age,
         email:req.user.email,
-        role: req.body.role  // Asignar el valor del rol proporcionado en el formulario
+        role: req.body.role,  // Asignar el valor del rol proporcionado en el formulario
+        cart: req.user.cart
     };
 
     req.session.login = true;
