@@ -1,43 +1,17 @@
 const express = require("express");
 const router = express.Router();
+const ViewsController = require("../controllers/view-manager.js");
+const viewsController = new ViewsController();
+const checkUserRole = require("../middleware/checkrole.js");
+const passport = require("passport");
 
-router.get("/", (req, res) => {
-    res.render("home", { session: req.session });
-});
+router.get("/products", checkUserRole(['usuario']),passport.authenticate('jwt', { session: false }), viewsController.renderProducts);
 
-router.get("/realtimeproducts", (req, res) => {
-    // Verificar si el usuario tiene el rol de administrador
-    if (!req.session.login || req.session.user.role !== 'admin') {
-        // Si no es un administrador, mostrar un mensaje de error
-        return res.status(403).send("Acceso denegado");
-    }
-    // Si es un administrador, renderizar la vista de productos en tiempo real
-    res.render("realtimeproducts", { session: req.session });
-});
-
-router.get("/chat", async (req, res) => {
-    res.render("chat", { session: req.session });
-});
-
-router.get("/login", (req, res) => {
-    if (req.session.login) {
-        return res.redirect("/profile");
-    }
-    res.render("login", { session: req.session });
-});
-
-router.get("/register", (req, res) => {
-    if (req.session.login) {
-        return res.redirect("/profile");
-    }
-    res.render("register", { session: req.session });
-});
-
-router.get("/profile", (req, res) => {
-    if (!req.session.login) {
-        return res.redirect("/login");
-    }
-    res.render("profile", { user: req.session.user, session: req.session });
-});
+router.get("/carts/:cid", viewsController.renderCart);
+router.get("/login", viewsController.renderLogin);
+router.get("/register", viewsController.renderRegister);
+router.get("/realtimeproducts", checkUserRole(['admin']), viewsController.renderRealTimeProducts);
+router.get("/chat", checkUserRole(['usuario']) ,viewsController.renderChat);
+router.get("/", viewsController.renderHome);
 
 module.exports = router;

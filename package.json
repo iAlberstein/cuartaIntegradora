@@ -1,7 +1,7 @@
 {
-  "name": "primeraentrega",
+  "name": "tercera_pre_entrega",
   "version": "1.0.0",
-  "description": "desafío entregable clase 27",
+  "description": "Tercera Pre Entrega",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.2",
     "mongoose-paginate-v2": "^1.8.2",
+    "nodemailer": "^6.9.13",
     "npm": "^10.6.0",
     "passport": "^0.7.0",
     "passport-github": "^1.1.0",

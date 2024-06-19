@@ -1,100 +1,68 @@
-const ProductModel = require("../models/product.model.js");
+const ProductRepository = require("../repositories/product.repository.js");
+const productRepository = new ProductRepository();
 
-class ProductManager {
+class ProductController {
 
-    async addProduct({title, description, price, img, code, stock, category, thumbnails}) {
+    async addProduct(req, res) {
+        const nuevoProducto = req.body;
         try {
-            if(!title|| !description || !price || !code || !stock || !category) {
-                console.log("Todos los campos son obligatorios");
-                return; 
-            }
-
-            const existeProducto = await ProductModel.findOne({code: code});
-
-            if(existeProducto) {
-                console.log("El código debe ser unico");
-                return;
-            }
-
-            const nuevoProducto = new ProductModel({
-                title, 
-                description, 
-                price, 
-                img, 
-                code,
-                stock, 
-                category, 
-                status: true, 
-                thumbnails: thumbnails || []
-            });
-
-            await nuevoProducto.save(); 
+            const resultado = await productRepository.agregarProducto(nuevoProducto);
+            res.json(resultado);
 
         } catch (error) {
-            console.log("Error al agregar un producto", error); 
-            throw error; 
+            res.status(500).send("Error");
         }
     }
 
     async getProducts(req, res) {
         try {
-            const productos = await ProductModel.find(); 
-            respuesta(res, 200, productos);
-        } catch (error) {
-            respuesta(res, 500, "Error al obtener los productos");
+            let { limit = 10, page = 1, sort, query } = req.query;
+
+            const productos = await productRepository.obtenerProductos(limit, page, sort, query);
+           
+            res.json(productos);
+        } catch (error) { 
+            res.status(500).send("Error");
         }
     }
 
-    async getProductById(id) {
+    async getProductById(req, res) {
+        const id = req.params.pid;
         try {
-            const producto = await ProductModel.findById(id);
-            if(!producto) {
-                console.log("Producto no encontrado");
-                return null; 
+            const buscado = await productRepository.obtenerProductoPorId(id);
+            if (!buscado) {
+                return res.json({
+                    error: "Producto no encontrado"
+                });
             }
-
-            console.log("Producto encontrado");
-            return producto;
+            res.json(buscado);
         } catch (error) {
-            console.log("Error al recuperar producto por ID", error); 
-            throw error; 
+            res.status(500).send("Error");
         }
     }
 
-    async updateProduct(id, productoActualizado) {
+    async updateProduct(req, res) {
         try {
-            const updateProduct =  await ProductModel.findByIdAndUpdate(id, productoActualizado);
+            const id = req.params.pid;
+            const productoActualizado = req.body;
 
-            if(!updateProduct) {
-                console.log("Producto no encontrado");
-                return null; 
-            }
-            console.log("Producto actualizado");
-            return updateProduct;
-
+            const resultado = await productRepository.actualizarProducto(id, productoActualizado);
+            res.json(resultado);
         } catch (error) {
-            console.log("Error al actualizar producto por ID", error); 
-            throw error; 
+            res.status(500).send("Error al actualizar el producto");
         }
     }
 
-    async deleteProduct(id) {
+    async deleteProduct(req, res) {
+        const id = req.params.pid;
         try {
-            const deleteProduct = await ProductModel.findByIdAndDelete(id);
+            let respuesta = await productRepository.eliminarProducto(id);
 
-            if(!deleteProduct) {
-                console.log("Producto no encontrado");
-                console.log(id)
-                return null; 
-            }
-            console.log("Producto eliminado");
-            
-
+            res.json(respuesta);
         } catch (error) {
-            console.log("Error eliminar producto por ID", error); 
-            throw error; 
+            res.status(500).send("Error al eliminar el producto");
         }
     }
 }
 
-module.exports = ProductManager;
+module.exports = ProductController; 

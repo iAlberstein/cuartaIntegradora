@@ -1,28 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const UserModel = require("../models/user.model.js");
 const passport = require("passport");
+const UserController = require("../controllers/user-manager-db.js");
 
-router.post("/", passport.authenticate("register", {failureRedirect: "/failedregister"}), async (req, res) => {
-    if(!req.user) return res.status(400).send({status:"error"});
+const userController = new UserController();
 
-    req.session.user = {
-        first_name: req.user.first_name,
-        last_name: req.user.last_name,
-        age: req.user.age,
-        email:req.user.email,
-        role: req.body.role,  // Asignar el valor del rol proporcionado en el formulario
-        cart: req.user.cart
-    };
-
-    req.session.login = true;
-
-    res.redirect("/profile");
-})
-
-
-router.get("/failedregister", (req, res) => {
-    res.send({ error: "Registro fallido!" });
-});
+router.post("/register", userController.register);
+router.post("/login", userController.login);
+router.get("/profile", passport.authenticate("jwt", { session: false }), userController.profile);
+router.post("/logout", userController.logout.bind(userController));
+router.get("/admin", passport.authenticate("jwt", { session: false }), userController.admin);
 
 module.exports = router;
