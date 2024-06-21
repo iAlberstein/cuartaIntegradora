@@ -1,49 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/styles/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body style="background-color: rgb(81, 95, 100);">
-    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
-      <div class="container-fluid">
-        <a class="navbar-brand me-auto" href="/">TICKETERA</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto me-4">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="http://localhost:8080/api/products">Cartelera</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="http://localhost:8080/realtimeproducts">Real Time Products</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="http://localhost:8080/chat">Chat</a>
-            
-            {{!-- En caso de que la session sea True, mostrará "Profile". Caso contrario mostrará "Login" --}}
-            <li class="nav-item">
-              {{#if session.login}}
-                <a class="nav-link active" aria-current="page" href="http://localhost:8080/profile">Profile</a>
-              {{else}}
-                <a class="nav-link active" aria-current="page" href="http://localhost:8080/login">Login</a>
-              {{/if}}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
 
-
+<body class="container-fluid">
+   
+    {{> header}}
     {{{body}}}
 
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-
+  
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+
 </html>

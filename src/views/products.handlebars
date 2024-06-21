@@ -1,0 +1,41 @@
+<div class="d-flex justify-content-center align-items-center">
+  <h1 class="text-center">Productos</h1>
+
+  
+</div>
+<div class="container">
+    <div class="">
+        {{#each productos}}
+        <div class="card">
+            <img src="{{img}}" alt="" class="card-img-top">
+            <div class="card-body">
+                <h2 class="card-title">{{title}}</h2>
+                <p class="card-text">{{description}}</p>
+                <p class="card-text">Price: ${{price}}</p>
+                <form action="/api/carts/{{../cartId}}/product/{{id}}" method="POST">
+                    <button class="btnTiketera" type="submit">Agregar al Carrito</button>
+                </form>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+
+
+
+
+<div class="container mt-3">
+    <div class="text-center"> <!-- Centra los enlaces horizontalmente -->
+        {{#if hasPrevPage}}
+        <a href="/products?page={{prevPage}}"> Anterior </a>
+        {{/if}}
+        {{#if hasNextPage}}
+        <a href="/products?page={{nextPage}}"> Siguiente </a>
+        {{/if}}
+    </div>
+    <div class="numPag">
+        <p>Pagina {{currentPage}} de {{totalPages}} </p>
+    </div>
+            
+</div>

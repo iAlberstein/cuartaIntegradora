@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ViewsController = require("../controllers/view-manager.js");
+const ViewsController = require("../controllers/view.controller.js");
 const viewsController = new ViewsController();
 const checkUserRole = require("../middleware/checkrole.js");
 const passport = require("passport");

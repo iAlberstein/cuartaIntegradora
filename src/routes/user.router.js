@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const UserController = require("../controllers/user-manager-db.js");
+const UserController = require("../controllers/user.controller.js");
 
 const userController = new UserController();
 
