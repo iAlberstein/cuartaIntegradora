@@ -1,27 +1,19 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const cartSchema = new mongoose.Schema({
-    products: [
-        {
-            product: {
-                type: mongoose.Schema.Types.ObjectId, 
-                ref: "Product",
-                required: true
-            },
-            quantity: {
-                type:Number, 
-                required: true
-            }
+const cartSchema = new Schema({
+    products: [{
+        product: {
+            type: Schema.Types.ObjectId,
+            ref: 'Productos' // Aquí se asegura de que la referencia sea correcta
+        },
+        quantity: {
+            type: Number,
+            default: 1
         }
-    ]
+    }]
 });
 
-// Middleware pre que realiza la población automáticamente
-cartSchema.pre('findOne', function (next) {
-    this.populate('products.product', '_id title price');
-    next();
-  });
-
-const CartModel = mongoose.model("carts", cartSchema);
+const CartModel = mongoose.model('Cart', cartSchema);
 
 module.exports = CartModel;

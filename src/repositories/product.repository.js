@@ -92,7 +92,7 @@ class ProductRepository {
                 return null;
             }
 
-            console.log("Producto encontrado!! Claro que siiiiii");
+            console.log("Producto encontrado");
             return producto;
         } catch (error) {
             throw new Error("Error");

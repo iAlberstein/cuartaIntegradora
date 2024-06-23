@@ -5,9 +5,8 @@ const cartRepository = new CartRepository();
 const ProductRepository = require("../repositories/product.repository.js");
 const productRepository = new ProductRepository();
 const { generateUniqueCode, calcularTotal } = require("../utils/cartutils.js");
-
-
-
+const EmailManager = require('../services/email');
+const emailManager = new EmailManager();
 
 class CartController {
     async nuevoCarrito(req, res) {
@@ -36,15 +35,37 @@ class CartController {
         const cartId = req.params.cid;
         const productId = req.params.pid;
         const quantity = req.body.quantity || 1;
-        try {
-            await cartRepository.agregarProducto(cartId, productId, quantity);
-            const carritoID = (req.user.cart).toString();
+        console.log(`Cart ID: ${cartId}, Product ID: ${productId}, Quantity: ${quantity}`);
 
-            res.redirect(`/carts/${carritoID}`)
+        try {
+            const cart = await cartRepository.obtenerProductosDeCarrito(cartId);
+            if (!cart) {
+                console.log(`Carrito no encontrado: ${cartId}`);
+                return res.status(404).json({ error: "Carrito no encontrado" });
+            }
+
+            const product = await productRepository.obtenerProductoPorId(productId);
+            if (!product) {
+                console.log(`Producto no encontrado: ${productId}`);
+                return res.status(404).json({ error: "Producto no encontrado" });
+            }
+
+            await cartRepository.agregarProducto(cartId, productId, quantity);
+
+            if (!req.user || !req.user.cart) {
+                console.log(`Usuario no autenticado o carrito no asociado a usuario`);
+                return res.status(400).json({ error: "Usuario no autenticado o carrito no encontrado en el usuario" });
+            }
+
+            const carritoID = (req.user.cart).toString();
+            console.log(`Producto agregado. Redirigiendo a /carts/${carritoID}`);
+
+            res.redirect(`/carts/${carritoID}`);
         } catch (error) {
-            res.status(500).send("Error");
+            console.error('Error al agregar producto al carrito:', error);
+            res.status(500).send("Error al agregar producto al carrito");
         }
-    }
+    }  
 
     async eliminarProductoDeCarrito(req, res) {
         const cartId = req.params.cid;
@@ -107,7 +128,6 @@ class CartController {
         }
     }
 
-    //Ultima Pre Entrega: 
     async finalizarCompra(req, res) {
         const cartId = req.params.cid;
         try {
@@ -154,8 +174,7 @@ class CartController {
             console.error('Error al procesar la compra:', error);
             res.status(500).json({ error: 'Error interno del servidor' });
         }
-    }
-
+    } 
 }
 
 module.exports = CartController;
