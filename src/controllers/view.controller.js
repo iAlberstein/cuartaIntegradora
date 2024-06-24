@@ -110,6 +110,11 @@ class ViewsController {
     async renderHome(req, res) {
         res.render("home");
     }
+
+    async renderCheckout(req, res) {
+        const { cliente, numTicket, email } = req.query; // Si los datos vienen en la query string
+        res.render("checkout", { cliente, numTicket, email });
+    }
 }
 
 module.exports = ViewsController;

@@ -42,6 +42,11 @@ app.use("/api/carts", cartsRouter);
 app.use("/api/users", userRouter);
 app.use("/", viewsRouter);
 
+// Nueva ruta para renderizar la vista de checkout
+app.get("/checkout", (req, res) => {
+    res.render("checkout");
+});
+
 const httpServer = app.listen(PUERTO, () => {
     console.log(`Servidor escuchando en el puerto ${PUERTO}`);
 });

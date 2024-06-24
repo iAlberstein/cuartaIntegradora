@@ -257,3 +257,16 @@ h1 {
     text-align: center;
 }
 
+.btnCarrito {
+    display: flex;
+    justify-content: center;
+}
+
+.btnCarrito button {
+    margin: 5px;
+    margin-top: 10px;
+}
+
+.totalCompra {
+    text-align: center;
+}

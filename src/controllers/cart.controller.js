@@ -134,13 +134,13 @@ class CartController {
             // Obtener el carrito y sus productos
             const cart = await cartRepository.obtenerProductosDeCarrito(cartId);
             const products = cart.products;
-
+    
             // Inicializar un arreglo para almacenar los productos no disponibles
             const productosNoDisponibles = [];
-
+    
             // Verificar el stock y actualizar los productos disponibles
             for (const item of products) {
-                const productId = item.product;
+                const productId = item.product._id;
                 const product = await productRepository.obtenerProductoPorId(productId);
                 if (product.stock >= item.quantity) {
                     // Si hay suficiente stock, restar la cantidad del producto
@@ -151,9 +151,9 @@ class CartController {
                     productosNoDisponibles.push(productId);
                 }
             }
-
+    
             const userWithCart = await UserModel.findOne({ cart: cartId });
-
+    
             // Crear un ticket con los datos de la compra
             const ticket = new TicketModel({
                 code: generateUniqueCode(),
@@ -162,19 +162,23 @@ class CartController {
                 purchaser: userWithCart._id
             });
             await ticket.save();
-
+    
             // Eliminar del carrito los productos que sí se compraron
-            cart.products = cart.products.filter(item => productosNoDisponibles.some(productId => productId.equals(item.product)));
-
+            cart.products = cart.products.filter(item => !productosNoDisponibles.some(productId => productId.equals(item.product._id)));
+    
             // Guardar el carrito actualizado en la base de datos
             await cart.save();
-
-            res.status(200).json({ productosNoDisponibles });
+    
+            // Enviar email con la información del ticket
+            await emailManager.enviarCorreoCompra(userWithCart.email, userWithCart.first_name, ticket.code);
+    
+            // Redirigir a la página de checkout sin pasar datos en la URL
+            res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error al procesar la compra:', error);
             res.status(500).json({ error: 'Error interno del servidor' });
         }
-    } 
+    }    
 }
 
 module.exports = CartController;

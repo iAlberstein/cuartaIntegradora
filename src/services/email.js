@@ -22,7 +22,6 @@ class EmailManager {
                     <h1>Confirmación de compra</h1>
                     <p>Gracias por tu compra, ${first_name}!</p>
                     <p>El número de tu orden es: ${ticket}</p>
-    
                 `
             };
 
