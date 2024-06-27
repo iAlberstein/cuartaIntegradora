@@ -178,7 +178,7 @@ class CartController {
             console.error('Error al procesar la compra:', error);
             res.status(500).json({ error: 'Error interno del servidor' });
         }
-    }    
+    }   
 }
 
 module.exports = CartController;
