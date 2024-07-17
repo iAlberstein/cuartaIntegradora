@@ -36,4 +36,9 @@ router.post("/usuarios", async (req, res, next) => {
     }
 });
 
+//Nuevas rutas para 3ra integradora
+router.post("/requestPasswordReset", userController.requestPasswordReset);
+router.post("/reset-password", userController.resetPassword);
+router.put("/premium/:uid", userController.cambiarRolPremium);
+
 module.exports = router;

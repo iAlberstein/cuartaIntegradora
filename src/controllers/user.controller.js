@@ -1,31 +1,51 @@
-const { createHash, isValidPassword } = require("../utils/hashbcryp.js");
-const UserRepository = require("../repositories/user.repository.js");
+const UserModel = require("../models/user.model.js");
+const CartModel = require("../models/cart.model.js");
 const jwt = require("jsonwebtoken");
+const { createHash, isValidPassword } = require("../utils/hashbcryp.js");
+const UserDTO = require("../dto/user.dto.js");
+const { generarResetToken } = require("../utils/tokenreset.js");
 
-const userRepository = new UserRepository();
+//Tercer integradora:
+const EmailManager = require("../services/email.js");
+const emailManager = new EmailManager();
+
 
 class UserController {
     async register(req, res) {
         const { first_name, last_name, email, password, age } = req.body;
         try {
-            const existeUsuario = await userRepository.obtenerUsuarioPorEmail(email);
+            const existeUsuario = await UserModel.findOne({ email });
             if (existeUsuario) {
                 return res.status(400).send("El usuario ya existe");
             }
 
-            const nuevoUsuario = {
+            //Creo un nuevo carrito: 
+            const nuevoCarrito = new CartModel();
+            await nuevoCarrito.save();
+
+            const nuevoUsuario = new UserModel({
                 first_name,
                 last_name,
                 email,
+                cart: nuevoCarrito._id,
                 password: createHash(password),
                 age
-            };
+            });
 
-            await userRepository.crearUsuario(nuevoUsuario);
+            await nuevoUsuario.save();
 
-            res.status(201).send("Usuario registrado exitosamente");
+            const token = jwt.sign({ user: nuevoUsuario }, "coderhouse", {
+                expiresIn: "1h"
+            });
+
+            res.cookie("coderCookieToken", token, {
+                maxAge: 3600000,
+                httpOnly: true
+            });
+
+            res.redirect("/api/users/profile");
         } catch (error) {
-            req.logger.error("Error al registrar usuario:", error);
+            console.error(error);
             res.status(500).send("Error interno del servidor");
         }
     }
@@ -33,94 +53,153 @@ class UserController {
     async login(req, res) {
         const { email, password } = req.body;
         try {
-            const usuario = await userRepository.obtenerUsuarioPorEmail(email);
+            const usuarioEncontrado = await UserModel.findOne({ email });
 
-            if (!usuario || !isValidPassword(password, usuario.password)) {
-                return res.status(401).send("Credenciales incorrectas");
+            if (!usuarioEncontrado) {
+                return res.status(401).send("Usuario no válido");
             }
 
-            const token = jwt.sign({ user: usuario }, "tu_clave_secreta", { expiresIn: "1h" });
+            const esValido = isValidPassword(password, usuarioEncontrado);
+            if (!esValido) {
+                return res.status(401).send("Contraseña incorrecta");
+            }
 
-            res.cookie("jwt", token, { httpOnly: true, maxAge: 3600000 });
-            res.status(200).send("Inicio de sesión exitoso");
+            const token = jwt.sign({ user: usuarioEncontrado }, "coderhouse", {
+                expiresIn: "1h"
+            });
+
+            res.cookie("coderCookieToken", token, {
+                maxAge: 3600000,
+                httpOnly: true
+            });
+
+            res.redirect("/api/users/profile");
         } catch (error) {
-            req.logger.error("Error al iniciar sesión:", error);
+            console.error(error);
             res.status(500).send("Error interno del servidor");
         }
     }
 
     async profile(req, res) {
-        const usuario = req.user;
-        res.json(usuario);
+        //Con DTO: 
+        const userDto = new UserDTO(req.user.first_name, req.user.last_name, req.user.role);
+        const isAdmin = req.user.role === 'admin';
+        res.render("profile", { user: userDto, isAdmin });
     }
 
     async logout(req, res) {
-        res.clearCookie("jwt");
-        res.status(200).send("Cierre de sesión exitoso");
+        res.clearCookie("coderCookieToken");
+        res.redirect("/login");
     }
 
     async admin(req, res) {
-        if (req.user.role !== "admin") {
+        if (req.user.user.role !== "admin") {
             return res.status(403).send("Acceso denegado");
         }
-        res.status(200).send("Acceso de administrador");
+        res.render("admin");
     }
 
-    // Funciones existentes
-    async obtenerUsuarios(req, res) {
-        req.logger.info("Obteniendo lista de usuarios");
-        try {
-            const usuarios = await userRepository.obtenerUsuarios();
-            res.json(usuarios);
-        } catch (error) {
-            req.logger.error("Error al obtener usuarios:", error);
-            res.status(500).send("Error");
-        }
-    }
+    //Tercer Integradora: 
 
-    async obtenerUsuarioPorId(req, res) {
-        const id = req.params.uid;
-        req.logger.info(`Obteniendo usuario por ID: ${id}`);
+    async requestPasswordReset(req, res) {
+        const { email } = req.body;
         try {
-            const usuario = await userRepository.obtenerUsuarioPorId(id);
-            if (!usuario) {
-                req.logger.warn(`Usuario no encontrado: ${id}`);
-                return res.status(404).json({ error: "Usuario no encontrado" });
+            //Buscar al usuario por email
+            const user = await UserModel.findOne({ email });
+
+            if (!user) {
+                //Si no hay usuario tiro error y el metodo termina aca. 
+                return res.status(404).send("Usuario no encontrado");
             }
-            res.json(usuario);
-        } catch (error) {
-            req.logger.error(`Error al obtener usuario por ID ${id}:`, error);
-            res.status(500).send("Error");
-        }
-    }
 
-    async actualizarUsuario(req, res) {
-        const id = req.params.uid;
-        const userActualizado = req.body;
-        req.logger.info(`Actualizando usuario. ID: ${id}`, userActualizado);
-        try {
-            if (userActualizado.password) {
-                userActualizado.password = createHash(userActualizado.password);
+            //Peeero, si hay usuario, le genero un token: 
+
+            const token = generarResetToken();
+            //Recuerden que esto esta en la carpetita utils. 
+
+            //Una vez que tenemos el token se lo podemos agregar al usuario: 
+
+            user.resetToken = {
+                token: token,
+                expire: new Date(Date.now() + 3600000) // 1 Hora de duración. 
             }
-            const resultado = await userRepository.actualizarUsuario(id, userActualizado);
-            res.json(resultado);
+
+            await user.save();
+
+            //Despues que guardamos los cambios, mandamos el mail: 
+            await emailManager.enviarCorreoRestablecimiento(email, user.first_name, token);
+
+            res.redirect("/confirmacion-envio");
         } catch (error) {
-            req.logger.error(`Error al actualizar usuario ${id}:`, error);
-            res.status(500).send("Error");
+            res.status(500).send("Error interno del servidor");
         }
     }
 
-    async eliminarUsuario(req, res) {
-        const id = req.params.uid;
-        req.logger.info(`Eliminando usuario. ID: ${id}`);
+    async resetPassword(req, res) {
+        const { email, password, token } = req.body;
+
         try {
-            const resultado = await userRepository.eliminarUsuario(id);
-            res.json(resultado);
+            //Busco el usuario: 
+            const user = await UserModel.findOne({ email });
+            if (!user) {
+                return res.render("passwordcambio", { error: "Usuario no encontrado" });
+            }
+
+            //Saco token y lo verificamos: 
+            const resetToken = user.resetToken;
+            if (!resetToken || resetToken.token !== token) {
+                return res.render("passwordreset", { error: "El token es invalido" });
+            }
+
+            //Verificamos si el token expiro: 
+            const ahora = new Date();
+            if (ahora > resetToken.expire) {
+                return res.render("passwordreset", { error: "El token es invalido" });
+            }
+
+            //Verificamos que la contraseña nueva no sea igual a la anterior: 
+            if (isValidPassword(password, user)) {
+                return res.render("passwordcambio", { error: "La nueva contraseña no puede ser igual a la anterior" });
+            }
+
+            //Actualizo la contraseña: 
+            user.password = createHash(password);
+
+            //Marcamos como usado el token: 
+            user.resetToken = undefined;
+            await user.save();
+
+            return res.redirect("/login");
+
         } catch (error) {
-            req.logger.error(`Error al eliminar usuario ${id}:`, error);
-            res.status(500).send("Error");
+            res.status(500).render("passwordreset", { error: "Error interno del servidor" });
         }
     }
+
+    //Cambiar el rol del usuario: 
+
+    async cambiarRolPremium(req, res) {
+        const {uid} = req.params; 
+        try {
+            //Busco el usuario: 
+            const user = await UserModel.findById(uid); 
+
+            if(!user) {
+                return res.status(404).send("Usuario no encontrado"); 
+            }
+
+            //cambio de rol si no se encuentra 
+
+            const nuevoRol = user.role === "usuario" ? "premium" : "usuario"; 
+
+            const actualizado = await UserModel.findByIdAndUpdate(uid, {role: nuevoRol});
+            res.json(actualizado); 
+        } catch (error) {
+            res.status(500).send("Error en el servidor, a Fede le baja la temperatura a -4 grados ahora en verano"); 
+        }
+    }
+
+
 }
 
 module.exports = UserController;

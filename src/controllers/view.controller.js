@@ -115,6 +115,20 @@ class ViewsController {
         const { cliente, numTicket, email } = req.query; // Si los datos vienen en la query string
         res.render("checkout", { cliente, numTicket, email });
     }
+    
+    //Tercer integradora: 
+
+    async renderResetPassword(req, res){
+        res.render("passwordreset"); 
+    }
+
+    async renderCambioPassword(req, res){
+        res.render("passwordcambio"); 
+    }
+
+    async renderConfirmacion(req, res){
+        res.render("confirmacion-envio"); 
+    }
 }
 
 module.exports = ViewsController;

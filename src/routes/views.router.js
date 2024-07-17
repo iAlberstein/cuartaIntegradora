@@ -17,4 +17,9 @@ router.get("/", viewsController.renderHome);
 // Nueva ruta para checkout
 router.get("/checkout", viewsController.renderCheckout);
 
+//Nuevas rutas para 3ra integradora
+router.get("/reset-password", viewsController.renderResetPassword);
+router.get("/password", viewsController.renderCambioPassword);
+router.get("/confirmacion-envio", viewsController.renderConfirmacion);
+
 module.exports = router;
