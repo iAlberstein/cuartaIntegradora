@@ -3,23 +3,26 @@ const CartModel = require("../models/cart.model.js");
 const jwt = require("jsonwebtoken");
 const { createHash, isValidPassword } = require("../utils/hashbcryp.js");
 const UserDTO = require("../dto/user.dto.js");
-const { generarResetToken } = require("../utils/tokenreset.js");
+const { generateResetToken } = require("../utils/tokenreset.js");
 
-//Tercer integradora:
+// Repositorio de usuarios
+const UserRepository = require("../repositories/user.repository.js");
+const userRepository = new UserRepository();
+
+// Tercer Integradora: 
 const EmailManager = require("../services/email.js");
 const emailManager = new EmailManager();
-
 
 class UserController {
     async register(req, res) {
         const { first_name, last_name, email, password, age } = req.body;
         try {
-            const existeUsuario = await UserModel.findOne({ email });
+            const existeUsuario = await userRepository.findByEmail(email);
             if (existeUsuario) {
                 return res.status(400).send("El usuario ya existe");
             }
 
-            //Creo un nuevo carrito: 
+            // Creo un nuevo carrito: 
             const nuevoCarrito = new CartModel();
             await nuevoCarrito.save();
 
@@ -32,7 +35,7 @@ class UserController {
                 age
             });
 
-            await nuevoUsuario.save();
+            await userRepository.create(nuevoUsuario);
 
             const token = jwt.sign({ user: nuevoUsuario }, "coderhouse", {
                 expiresIn: "1h"
@@ -53,7 +56,7 @@ class UserController {
     async login(req, res) {
         const { email, password } = req.body;
         try {
-            const usuarioEncontrado = await UserModel.findOne({ email });
+            const usuarioEncontrado = await userRepository.findByEmail(email);
 
             if (!usuarioEncontrado) {
                 return res.status(401).send("Usuario no válido");
@@ -67,6 +70,8 @@ class UserController {
             const token = jwt.sign({ user: usuarioEncontrado }, "coderhouse", {
                 expiresIn: "1h"
             });
+            usuarioEncontrado.last_connection = new Date();
+            await usuarioEncontrado.save();
 
             res.cookie("coderCookieToken", token, {
                 maxAge: 3600000,
@@ -81,13 +86,29 @@ class UserController {
     }
 
     async profile(req, res) {
-        //Con DTO: 
-        const userDto = new UserDTO(req.user.first_name, req.user.last_name, req.user.role);
-        const isAdmin = req.user.role === 'admin';
-        res.render("profile", { user: userDto, isAdmin });
+        try {
+            const isPremium = req.user.role === 'premium';
+            const userDto = new UserDTO(req.user.first_name, req.user.last_name, req.user.role);
+            const isAdmin = req.user.role === 'admin';
+
+            res.render("profile", { user: userDto, isPremium, isAdmin });
+        } catch (error) {
+            res.status(500).send('Error interno del servidor');
+        }
     }
 
     async logout(req, res) {
+        if (req.user) {
+            try {
+                req.user.last_connection = new Date();
+                await req.user.save();
+            } catch (error) {
+                console.error(error);
+                res.status(500).send("Error interno del servidor");
+                return;
+            }
+        }
+
         res.clearCookie("coderCookieToken");
         res.redirect("/login");
     }
@@ -99,38 +120,33 @@ class UserController {
         res.render("admin");
     }
 
-    //Tercer Integradora: 
-
+    // Tercer integradora: 
     async requestPasswordReset(req, res) {
         const { email } = req.body;
-        try {
-            //Buscar al usuario por email
-            const user = await UserModel.findOne({ email });
 
+        try {
+            // Buscar al usuario por su correo electrónico
+            const user = await userRepository.findByEmail(email);
             if (!user) {
-                //Si no hay usuario tiro error y el metodo termina aca. 
                 return res.status(404).send("Usuario no encontrado");
             }
 
-            //Peeero, si hay usuario, le genero un token: 
+            // Generar un token 
+            const token = generateResetToken();
 
-            const token = generarResetToken();
-            //Recuerden que esto esta en la carpetita utils. 
-
-            //Una vez que tenemos el token se lo podemos agregar al usuario: 
-
+            // Guardar el token en el usuario
             user.resetToken = {
                 token: token,
-                expire: new Date(Date.now() + 3600000) // 1 Hora de duración. 
-            }
+                expiresAt: new Date(Date.now() + 3600000) // 1 hora de duración
+            };
+            await userRepository.save(user);
 
-            await user.save();
-
-            //Despues que guardamos los cambios, mandamos el mail: 
+            // Enviar correo electrónico con el enlace de restablecimiento utilizando EmailService
             await emailManager.enviarCorreoRestablecimiento(email, user.first_name, token);
 
             res.redirect("/confirmacion-envio");
         } catch (error) {
+            console.error(error);
             res.status(500).send("Error interno del servidor");
         }
     }
@@ -139,65 +155,72 @@ class UserController {
         const { email, password, token } = req.body;
 
         try {
-            //Busco el usuario: 
-            const user = await UserModel.findOne({ email });
+            // Buscar al usuario por su correo electrónico
+            const user = await userRepository.findByEmail(email);
             if (!user) {
                 return res.render("passwordcambio", { error: "Usuario no encontrado" });
             }
 
-            //Saco token y lo verificamos: 
+            // Obtener el token de restablecimiento de la contraseña del usuario
             const resetToken = user.resetToken;
             if (!resetToken || resetToken.token !== token) {
-                return res.render("passwordreset", { error: "El token es invalido" });
+                return res.render("passwordreset", { error: "El token de restablecimiento de contraseña es inválido" });
             }
 
-            //Verificamos si el token expiro: 
-            const ahora = new Date();
-            if (ahora > resetToken.expire) {
-                return res.render("passwordreset", { error: "El token es invalido" });
+            // Verificar si el token ha expirado
+            const now = new Date();
+            if (now > resetToken.expiresAt) {
+                // Redirigir a la página de generación de nuevo correo de restablecimiento
+                return res.redirect("/passwordcambio");
             }
 
-            //Verificamos que la contraseña nueva no sea igual a la anterior: 
+            // Verificar si la nueva contraseña es igual a la anterior
             if (isValidPassword(password, user)) {
                 return res.render("passwordcambio", { error: "La nueva contraseña no puede ser igual a la anterior" });
             }
 
-            //Actualizo la contraseña: 
+            // Actualizar la contraseña del usuario
             user.password = createHash(password);
+            user.resetToken = undefined; // Marcar el token como utilizado
+            await userRepository.save(user);
 
-            //Marcamos como usado el token: 
-            user.resetToken = undefined;
-            await user.save();
-
+            // Renderizar la vista de confirmación de cambio de contraseña
             return res.redirect("/login");
-
         } catch (error) {
-            res.status(500).render("passwordreset", { error: "Error interno del servidor" });
+            console.error(error);
+            return res.status(500).render("passwordreset", { error: "Error interno del servidor" });
         }
     }
-
-    //Cambiar el rol del usuario: 
 
     async cambiarRolPremium(req, res) {
-        const {uid} = req.params; 
+        const { uid } = req.params;
         try {
-            //Busco el usuario: 
-            const user = await UserModel.findById(uid); 
+            const user = await userRepository.findById(uid);
 
-            if(!user) {
-                return res.status(404).send("Usuario no encontrado"); 
+            if (!user) {
+                return res.status(404).send("Usuario no encontrado");
             }
 
-            //cambio de rol si no se encuentra 
+            // Verificamos si el usuario tiene la documentacion requerida: 
+            const documentacionRequerida = ["Identificacion", "Comprobante de domicilio", "Comprobante de estado de cuenta"];
 
-            const nuevoRol = user.role === "usuario" ? "premium" : "usuario"; 
+            const userDocuments = user.documents.map(doc => doc.name);
 
-            const actualizado = await UserModel.findByIdAndUpdate(uid, {role: nuevoRol});
-            res.json(actualizado); 
+            const tieneDocumentacion = documentacionRequerida.every(doc => userDocuments.includes(doc));
+
+            if (!tieneDocumentacion) {
+                return res.status(400).send("El usuario tiene que completar toda la documentacion requerida");
+            }
+
+            const nuevoRol = user.role === "usuario" ? "premium" : "usuario";
+
+            res.send(nuevoRol); 
+
         } catch (error) {
-            res.status(500).send("Error en el servidor, a Fede le baja la temperatura a -4 grados ahora en verano"); 
+            res.status(500).send("Error del servidor");
         }
     }
+
 
 
 }

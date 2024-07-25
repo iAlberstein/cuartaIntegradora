@@ -15,7 +15,7 @@ const initializePassport = () => {
             if (!user) {
                 return done(null, false);
             }
-            return done(null, user); // Devuelve el usuario encontrado
+            return done(null, user);
         } catch (error) {
             return done(error);
         }

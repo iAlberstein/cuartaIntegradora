@@ -1,4 +1,5 @@
 const CartModel = require("../models/cart.model.js");
+const TicketModel = require("../models/ticket.model.js");
 
 class CartRepository {
     async crearCarrito() {
@@ -13,27 +14,22 @@ class CartRepository {
 
     async obtenerProductosDeCarrito(idCarrito) {
         try {
-            const carrito = await CartModel.findById(idCarrito).populate('products.product'); 
+            const carrito = await CartModel.findById(idCarrito);
             if (!carrito) {
                 console.log("No existe ese carrito con el id");
                 return null;
             }
             return carrito;
         } catch (error) {
-            console.error("Error al obtener productos del carrito:", error);
-            throw new Error("Error al obtener productos del carrito");
+            throw new Error("Error");
         }
     }
 
     async agregarProducto(cartId, productId, quantity = 1) {
         try {
             const carrito = await this.obtenerProductosDeCarrito(cartId);
-            if (!carrito) {
-                console.log(`Carrito no encontrado: ${cartId}`);
-                throw new Error("Carrito no encontrado");
-            }
-
             const existeProducto = carrito.products.find(item => item.product._id.toString() === productId);
+
             if (existeProducto) {
                 existeProducto.quantity += quantity;
             } else {
@@ -44,8 +40,7 @@ class CartRepository {
             await carrito.save();
             return carrito;
         } catch (error) {
-            console.error("Error al agregar producto al carrito:", error);
-            throw new Error("Error al agregar producto al carrito");
+            throw new Error("Error al agregar el producto al carrito");
         }
     }
 
@@ -86,13 +81,16 @@ class CartRepository {
             const cart = await CartModel.findById(cartId);
 
             if (!cart) {
+                
                 throw new Error('Carrito no encontrado');
             }
-
-            const productIndex = cart.products.findIndex(item => item.product._id.toString() === productId);
-
+            
+            
+            const productIndex = cart.products.findIndex(item => item._id.toString() === productId);
+        
             if (productIndex !== -1) {
                 cart.products[productIndex].quantity = newQuantity;
+
 
                 cart.markModified('products');
 
@@ -121,6 +119,21 @@ class CartRepository {
 
             return cart;
 
+        } catch (error) {
+            throw new Error("Error");
+        }
+    }
+
+    async agregarProductosATicket(products, purchaser) {
+        try {
+            const ticket = new TicketModel({
+                code: generateUniqueCode(),
+                purchase_datetime: new Date(),
+                amount: calcularTotal(products),
+                purchaser
+            });
+            await ticket.save();
+            return ticket;
         } catch (error) {
             throw new Error("Error");
         }

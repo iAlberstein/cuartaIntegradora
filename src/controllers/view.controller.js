@@ -95,8 +95,9 @@ class ViewsController {
     }
 
     async renderRealTimeProducts(req, res) {
+        const usuario = req.user; 
         try {
-            res.render("realtimeproducts");
+            res.render("realtimeproducts", {role: usuario.role, email: usuario.email});
         } catch (error) {
             console.log("error en la vista real time", error);
             res.status(500).json({ error: "Error interno del servidor" });
@@ -108,26 +109,24 @@ class ViewsController {
     }
 
     async renderHome(req, res) {
-        res.render("home");
+        res.render("home"); 
     }
 
-    async renderCheckout(req, res) {
-        const { cliente, numTicket, email } = req.query; // Si los datos vienen en la query string
-        res.render("checkout", { cliente, numTicket, email });
-    }
-    
     //Tercer integradora: 
-
-    async renderResetPassword(req, res){
-        res.render("passwordreset"); 
+    async renderResetPassword(req, res) {
+        res.render("passwordreset");
     }
 
-    async renderCambioPassword(req, res){
-        res.render("passwordcambio"); 
+    async renderCambioPassword(req, res) {
+        res.render("passwordcambio");
     }
 
-    async renderConfirmacion(req, res){
-        res.render("confirmacion-envio"); 
+    async renderConfirmacion(req, res) {
+        res.render("confirmacion-envio");
+    }
+
+    async renderPremium(req, res) {
+        res.render("panel-premium");
     }
 }
 

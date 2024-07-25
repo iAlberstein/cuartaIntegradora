@@ -3,10 +3,6 @@ const router = express.Router();
 const passport = require("passport");
 const UserController = require("../controllers/user.controller.js");
 
-const CustomError = require('../services/errors/custom-error.js');
-const generarInfoError = require('../services/errors/info.js');
-const { EErrors } = require('../services/errors/enum.js');
-
 const userController = new UserController();
 
 router.post("/register", userController.register);
@@ -14,31 +10,66 @@ router.post("/login", userController.login);
 router.get("/profile", passport.authenticate("jwt", { session: false }), userController.profile);
 router.post("/logout", userController.logout.bind(userController));
 router.get("/admin", passport.authenticate("jwt", { session: false }), userController.admin);
+router.post("/requestPasswordReset", userController.requestPasswordReset); 
+router.post('/reset-password', userController.resetPassword);
 
-router.post("/usuarios", async (req, res, next) => {
-    const { nombre, apellido, email } = req.body;
+
+
+//Modificamos el usuario para que sea premium: 
+router.put("/premium/:uid", userController.cambiarRolPremium);
+
+const UserRepository = require("../repositories/user.repository.js");
+const userRepository = new UserRepository();
+//Vamos a crear un middleware para Multer y lo vamos a importar: 
+const upload = require("../middleware/multer.js");
+
+router.post("/:uid/documents", upload.fields([{ name: "document" }, { name: "products" }, { name: "profile" }]), async (req, res) => {
+    const { uid } = req.params;
+    const uploadedDocuments = req.files;
 
     try {
-        if (!nombre || !apellido || !email) {
-            throw CustomError.crearError({
-                nombre: "Usuario nuevo",
-                causa: generarInfoError({ nombre, apellido, email }),
-                mensaje: "Error al intentar crear el usuario",
-                codigo: EErrors.TIPO_INVALIDO
-            });
+        const user = await userRepository.findById(uid);
+
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
         }
 
-        const usuario = { nombre, apellido, email };
-        arrayUsuarios.push(usuario);
-        res.send({ status: "success", payload: usuario });
-    } catch (error) {
-        next(error);
-    }
-});
+        //verificar si se suben los documentos y se actualiza el usuario: 
 
-//Nuevas rutas para 3ra integradora
-router.post("/requestPasswordReset", userController.requestPasswordReset);
-router.post("/reset-password", userController.resetPassword);
-router.put("/premium/:uid", userController.cambiarRolPremium);
+        if (uploadedDocuments) {
+            if (uploadedDocuments.document) {
+                user.documents = user.documents.concat(uploadedDocuments.document.map(doc => ({
+                    name: doc.originalname,
+                    reference: doc.path
+                })))
+            }
+
+            if (uploadedDocuments.products) {
+                user.documents = user.documents.concat(uploadedDocuments.products.map(doc => ({
+                    name: doc.originalname,
+                    reference: doc.path
+                })))
+            }
+
+            if (uploadedDocuments.profile) {
+                user.documents = user.documents.concat(uploadedDocuments.profile.map(doc => ({
+                    name: doc.originalname,
+                    reference: doc.path
+                })))
+            }
+        }
+
+        //Guardo los cambios en la base de datos: 
+
+        await user.save();
+
+        res.status(200).send("Documentos cargados exitosamente");
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Error interno del servidor");
+    }
+})
+
+
 
 module.exports = router;

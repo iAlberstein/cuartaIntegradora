@@ -1,16 +1,14 @@
-// Requiere dotenv-flow para cargar variables de entorno desde múltiples archivos .env
-const dotenvFlow = require('dotenv-flow');
-const argv = require('yargs').argv;
+const dotenv = require("dotenv");
+const program = require("../utils/commander.js");
 
-const mode = argv.mode || 'desarrollo';
+const {mode} = program.opts(); 
 
-dotenvFlow.config({
-    node_env: mode
+dotenv.config({
+    path: mode === "produccion" ? "./.env.produccion": "./.env.desarrollo"
 });
 
 const configObject = {
-    node_env: process.env.NODE_ENV || 'development',
-    // Aquí puedes añadir más configuraciones si es necesario
-};
+    mongo_url: process.env.MONGO_URL
+}
 
 module.exports = configObject;

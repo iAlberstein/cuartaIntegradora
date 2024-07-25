@@ -1,7 +1,7 @@
 const ProductModel = require("../models/product.model.js");
 
 class ProductRepository {
-    async agregarProducto({ title, description, price, img, code, stock, category, thumbnails }) {
+    async agregarProducto({ title, description, price, img, code, stock, category, thumbnails, owner }) {
         try {
             if (!title || !description || !price || !code || !stock || !category) {
                 console.log("Todos los campos son obligatorios");
@@ -11,9 +11,11 @@ class ProductRepository {
             const existeProducto = await ProductModel.findOne({ code: code });
 
             if (existeProducto) {
-                console.log("El código debe ser único, malditooo!!!");
+                console.log("El código debe ser único");
                 return;
             }
+
+            console.log("Owner", owner);
 
             const newProduct = new ProductModel({
                 title,
@@ -24,8 +26,10 @@ class ProductRepository {
                 stock,
                 category,
                 status: true,
-                thumbnails: thumbnails || []
+                thumbnails: thumbnails || [],
+                owner
             });
+
 
             await newProduct.save();
 
@@ -103,11 +107,11 @@ class ProductRepository {
         try {
             const actualizado = await ProductModel.findByIdAndUpdate(id, productoActualizado);
             if (!actualizado) {
-                console.log("No se encuentra che el producto");
+                console.log("No se encuentra el producto");
                 return null;
             }
 
-            console.log("Producto actualizado con exito, como todo en mi vidaa!");
+            console.log("Producto actualizado con exito");
             return actualizado;
         } catch (error) {
             throw new Error("Error");
@@ -115,15 +119,16 @@ class ProductRepository {
     }
 
     async eliminarProducto(id) {
+
         try {
             const deleteado = await ProductModel.findByIdAndDelete(id);
 
             if (!deleteado) {
-                console.log("No se encuentraaaa, busca bien!");
+                console.log("No encontrado");
                 return null;
             }
 
-            console.log("Producto eliminado correctamente!");
+            console.log("Producto eliminado correctamente");
             return deleteado;
         } catch (error) {
             throw new Error("Error");

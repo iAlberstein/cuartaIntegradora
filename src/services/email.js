@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 class EmailManager {
     constructor() {
@@ -7,7 +8,7 @@ class EmailManager {
             port: 587,
             auth: {
                 user: "albersteinbruno@gmail.com",
-                pass: "eyay mdwj ipfj xgbb"
+                pass: process.env.PASS_GMAIL
             }
         });
     }

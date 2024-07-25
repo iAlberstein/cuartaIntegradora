@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const checkUserRole = (allowedRoles) => (req, res, next) => {
     const token = req.cookies.coderCookieToken;
 
@@ -7,9 +9,6 @@ const checkUserRole = (allowedRoles) => (req, res, next) => {
                 res.status(403).send('Acceso denegado. Token inválido.');
             } else {
                 const userRole = decoded.user.role;
-                if (userRole === 'premium') {
-                    req.isPremium = true;
-                }
                 if (allowedRoles.includes(userRole)) {
                     next();
                 } else {
