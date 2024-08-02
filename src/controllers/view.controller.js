@@ -1,6 +1,7 @@
-const ProductModel = require("../models/product.model.js");
-const CartRepository = require("../repositories/cart.repository.js");
+import ProductModel from "../models/product.model.js";
+import CartRepository from "../repositories/cart.repository.js";
 const cartRepository = new CartRepository();
+
 
 class ViewsController {
     async renderProducts(req, res) {
@@ -130,4 +131,4 @@ class ViewsController {
     }
 }
 
-module.exports = ViewsController;
+export default ViewsController;

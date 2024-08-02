@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
-const configObject = require("./config/config.js");
+import mongoose from "mongoose";
+import configObject from "./config/config.js";
+
 const {mongo_url} = configObject;
 
 class BaseDatos {
@@ -20,4 +21,4 @@ class BaseDatos {
     }
 }
 
-module.exports = BaseDatos.getInstancia();
+export default BaseDatos.getInstancia();

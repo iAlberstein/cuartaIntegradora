@@ -4,4 +4,5 @@ const EErrors = {
     BD_ERROR: 3
 };
 
-module.exports = { EErrors };
+export { EErrors };
+

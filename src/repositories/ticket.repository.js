@@ -1,4 +1,5 @@
-const TicketModel = require("../models/ticket.model.js");
+import TicketModel from "../models/ticket.model.js";
+
 
 class TicketRepository {
     async crearTicket(ticketData) {
@@ -12,4 +13,4 @@ class TicketRepository {
     }
 }
 
-module.exports = TicketRepository;
+export default TicketRepository;

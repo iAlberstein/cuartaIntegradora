@@ -9,4 +9,4 @@ class CustomError {
     }
 }
 
-module.exports = CustomError;
+export default CustomError;

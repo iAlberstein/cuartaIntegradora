@@ -9,5 +9,6 @@ const ifEqual = (a, b, options) => {
   };
   
   // Exportar el helper ifEqual
-  module.exports = { ifEqual };
+  export { ifEqual };
+
   

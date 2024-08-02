@@ -1,9 +1,10 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const ViewsController = require("../controllers/view.controller.js");
+import ViewsController from "../controllers/view.controller.js";
 const viewsController = new ViewsController();
-const checkUserRole = require("../middleware/checkrole.js");
-const passport = require("passport");
+import checkUserRole from "../middleware/checkrole.js";
+import passport from "passport";
+
 
 router.get("/products", checkUserRole(['usuario', 'premium']),passport.authenticate('jwt', { session: false }), viewsController.renderProducts);
 
@@ -18,4 +19,4 @@ router.get("/password", viewsController.renderCambioPassword);
 router.get("/confirmacion-envio", viewsController.renderConfirmacion);
 router.get("/panel-premium", viewsController.renderPremium);
 
-module.exports = router;
+export default router;

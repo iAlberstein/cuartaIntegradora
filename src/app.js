@@ -1,18 +1,24 @@
-const express = require("express");
+import express from "express";
 const app = express();
-const exphbs = require("express-handlebars");
-const cookieParser = require("cookie-parser");
-const passport = require("passport");
-const initializePassport = require("./config/passport.config.js");
-const cors = require("cors");
-const path = require('path');
-const PUERTO = process.env.PUERTO || 8080;
-require("./database.js");
+import exphbs from "express-handlebars";
+import cookieParser from "cookie-parser";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
+import cors from "cors";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import './database.js';
 
-const productsRouter = require("./routes/products.router.js");
-const cartsRouter = require("./routes/carts.router.js");
-const viewsRouter = require("./routes/views.router.js");
-const userRouter = require("./routes/user.router.js");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const PUERTO = process.env.PUERTO || 8080;
+
+import productsRouter from "./routes/products.router.js";
+import cartsRouter from "./routes/carts.router.js";
+import viewsRouter from "./routes/views.router.js";
+import userRouter from "./routes/user.router.js";
+
 
 //Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -27,7 +33,8 @@ initializePassport();
 app.use(cookieParser());
 
 //AuthMiddleware
-const authMiddleware = require("./middleware/authmiddleware.js");
+import authMiddleware from "./middleware/authmiddleware.js";
+
 app.use(authMiddleware);
 
 
@@ -48,13 +55,15 @@ const httpServer = app.listen(PUERTO, () => {
 });
 
 ///Websockets: 
-const SocketManager = require("./sockets/socketmanager.js");
+import SocketManager from "./sockets/socketmanager.js";
+
 new SocketManager(httpServer);
 
 //SWAGGER: 
 
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUiExpress = require('swagger-ui-express');
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
+
 
 //objeto de configuración: swaggerOptions
 const swaggerOptions = {

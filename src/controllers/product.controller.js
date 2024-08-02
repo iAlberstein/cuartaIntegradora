@@ -1,5 +1,6 @@
-const ProductRepository = require("../repositories/product.repository.js");
+import ProductRepository from "../repositories/product.repository.js";
 const productRepository = new ProductRepository();
+
 
 class ProductController {
 
@@ -67,4 +68,4 @@ class ProductController {
     
 }
 
-module.exports = ProductController; 
+export default ProductController;

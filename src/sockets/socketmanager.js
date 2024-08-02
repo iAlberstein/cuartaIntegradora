@@ -1,11 +1,11 @@
-const socket = require("socket.io");
-const ProductRepository = require("../repositories/product.repository.js");
-const productRepository = new ProductRepository(); 
-const MessageModel = require("../models/message.model.js");
+import { Server as socket } from "socket.io";
+import ProductRepository from "../repositories/product.repository.js";
+const productRepository = new ProductRepository();
+import MessageModel from "../models/message.model.js";
 
 class SocketManager {
     constructor(httpServer) {
-        this.io = socket(httpServer);
+        this.io = new socket(httpServer); // Usa `new` para crear una instancia de Server
         this.initSocketEvents();
     }
 
@@ -13,7 +13,7 @@ class SocketManager {
         this.io.on("connection", async (socket) => {
             console.log("Un cliente se conectó");
             
-            socket.emit("productos", await productRepository.obtenerProductos() );
+            socket.emit("productos", await productRepository.obtenerProductos());
 
             socket.on("eliminarProducto", async (id) => {
                 await productRepository.eliminarProducto(id);
@@ -39,4 +39,4 @@ class SocketManager {
     }
 }
 
-module.exports = SocketManager;
+export default SocketManager;

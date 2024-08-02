@@ -6,4 +6,4 @@ const generarInfoError = (usuario) => {
     `;
 };
 
-module.exports = generarInfoError;
+export default generarInfoError;

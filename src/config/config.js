@@ -1,7 +1,7 @@
-const dotenv = require("dotenv");
-const program = require("../utils/commander.js");
+import dotenv from "dotenv";
+import program from "../utils/commander.js";
+const { mode } = program.opts();
 
-const {mode} = program.opts(); 
 
 dotenv.config({
     path: mode === "produccion" ? "./.env.produccion": "./.env.desarrollo"
@@ -11,4 +11,4 @@ const configObject = {
     mongo_url: process.env.MONGO_URL
 }
 
-module.exports = configObject;
+export default configObject;

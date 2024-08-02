@@ -1,8 +1,9 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const CartController = require("../controllers/cart.controller.js");
-const authMiddleware = require("../middleware/authmiddleware.js");
+import CartController from "../controllers/cart.controller.js";
+import authMiddleware from "../middleware/authmiddleware.js";
 const cartController = new CartController();
+
 
 router.use(authMiddleware);
 
@@ -16,4 +17,4 @@ router.delete('/:cid', cartController.vaciarCarrito);
 router.post('/:cid/purchase', cartController.finalizarCompra);
 
 
-module.exports = router;
+export default router;

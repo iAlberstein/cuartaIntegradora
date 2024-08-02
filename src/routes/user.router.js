@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const passport = require("passport");
-const UserController = require("../controllers/user.controller.js");
+import passport from "passport";
+import UserController from "../controllers/user.controller.js";
+
 
 const userController = new UserController();
 
@@ -18,10 +19,12 @@ router.post('/reset-password', userController.resetPassword);
 //Modificamos el usuario para que sea premium: 
 router.put("/premium/:uid", userController.cambiarRolPremium);
 
-const UserRepository = require("../repositories/user.repository.js");
+import UserRepository from "../repositories/user.repository.js";
+
 const userRepository = new UserRepository();
 //Vamos a crear un middleware para Multer y lo vamos a importar: 
-const upload = require("../middleware/multer.js");
+import upload from "../middleware/multer.js";
+
 
 router.post("/:uid/documents", upload.fields([{ name: "document" }, { name: "products" }, { name: "profile" }]), async (req, res) => {
     const { uid } = req.params;
@@ -72,4 +75,4 @@ router.post("/:uid/documents", upload.fields([{ name: "document" }, { name: "pro
 
 
 
-module.exports = router;
+export default router;

@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
 
 const messageSchema = new mongoose.Schema({
     user: {
@@ -13,4 +14,4 @@ const messageSchema = new mongoose.Schema({
 
 const MessageModel = mongoose.model("messages", messageSchema);
 
-module.exports = MessageModel; 
+export default MessageModel;

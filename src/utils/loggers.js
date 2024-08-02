@@ -1,5 +1,6 @@
-const winston = require("winston");
-const configObject = require('../config/config.js'); 
+import winston from "winston";
+import configObject from '../config/config.js';
+
 
 // traer del configObject: node_env
 const { node_env } = configObject;

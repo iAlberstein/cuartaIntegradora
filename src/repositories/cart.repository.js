@@ -1,5 +1,6 @@
-const CartModel = require("../models/cart.model.js");
-const TicketModel = require("../models/ticket.model.js");
+import CartModel from "../models/cart.model.js";
+import TicketModel from "../models/ticket.model.js";
+
 
 class CartRepository {
     async crearCarrito() {
@@ -140,4 +141,4 @@ class CartRepository {
     }
 }
 
-module.exports = CartRepository;
+export default CartRepository;

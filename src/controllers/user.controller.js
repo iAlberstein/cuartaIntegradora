@@ -1,17 +1,18 @@
-const UserModel = require("../models/user.model.js");
-const CartModel = require("../models/cart.model.js");
-const jwt = require("jsonwebtoken");
-const { createHash, isValidPassword } = require("../utils/hashbcryp.js");
-const UserDTO = require("../dto/user.dto.js");
-const { generateResetToken } = require("../utils/tokenreset.js");
+import UserModel from "../models/user.model.js";
+import CartModel from "../models/cart.model.js";
+import jwt from "jsonwebtoken";
+import { createHash, isValidPassword } from "../utils/hashbcryp.js";
+import UserDTO from "../dto/user.dto.js";
+import { generateResetToken } from "../utils/tokenreset.js";
 
 // Repositorio de usuarios
-const UserRepository = require("../repositories/user.repository.js");
+import UserRepository from "../repositories/user.repository.js";
 const userRepository = new UserRepository();
 
-// Tercer Integradora: 
-const EmailManager = require("../services/email.js");
+// Tercer Integradora:
+import EmailManager from "../services/email.js";
 const emailManager = new EmailManager();
+
 
 class UserController {
     async register(req, res) {
@@ -225,4 +226,4 @@ class UserController {
 
 }
 
-module.exports = UserController;
+export default UserController;

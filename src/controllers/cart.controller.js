@@ -1,14 +1,15 @@
-const TicketModel = require("../models/ticket.model.js");
-const UserModel = require("../models/user.model.js");
-const CartRepository = require("../repositories/cart.repository.js");
+import TicketModel from "../models/ticket.model.js";
+import UserModel from "../models/user.model.js";
+import CartRepository from "../repositories/cart.repository.js";
 const cartRepository = new CartRepository();
-const ProductRepository = require("../repositories/product.repository.js");
+import ProductRepository from "../repositories/product.repository.js";
 const productRepository = new ProductRepository();
-const { generateUniqueCode, calcularTotal } = require("../utils/cartutils.js");
-const EmailManager = require("../services/email.js");
+import { generateUniqueCode, calcularTotal } from "../utils/cartutils.js";
+import EmailManager from "../services/email.js";
 const emailManager = new EmailManager();
-const TicketRepository = require("../repositories/ticket.repository.js");
+import TicketRepository from "../repositories/ticket.repository.js";
 const ticketRepository = new TicketRepository();
+
 
 
 
@@ -35,19 +36,19 @@ class CartController {
         }
     }
 
-    // async agregarProductoEnCarrito(req, res) {
-    //     const cartId = req.params.cid;
-    //     const productId = req.params.pid;
-    //     const quantity = req.body.quantity || 1;
-    //     try {
-    //         await cartRepository.agregarProducto(cartId, productId, quantity);
-    //         const carritoID = (req.user.cart).toString();
+    async agregarProductoEnCarrito(req, res) {
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+        const quantity = req.body.quantity || 1;
+        try {
+            await cartRepository.agregarProducto(cartId, productId, quantity);
+            const carritoID = (req.user.cart).toString();
 
-    //         res.redirect(`/carts/${carritoID}`)
-    //     } catch (error) {
-    //         res.status(500).send("Error");
-    //     }
-    // }
+            res.redirect(`/carts/${carritoID}`)
+        } catch (error) {
+            res.status(500).send("Error");
+        }
+    }
     
     async agregarProductoEnCarrito(req, res) {
         const cartId = req.params.cid;
@@ -82,7 +83,7 @@ class CartController {
     async actualizarProductosEnCarrito(req, res) {
         const cartId = req.params.cid;
         const updatedProducts = req.body;
-        // Debes enviar un arreglo de productos en el cuerpo de la solicitud
+
         try {
             const updatedCart = await cartRepository.actualizarProductosEnCarrito(cartId, updatedProducts);
             res.json(updatedCart);
@@ -171,4 +172,4 @@ class CartController {
 
 }
 
-module.exports = CartController;
+export default CartController;

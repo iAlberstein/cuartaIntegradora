@@ -1,5 +1,6 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+import nodemailer from 'nodemailer';
+import 'dotenv/config';
+
 
 class EmailManager {
     constructor() {
@@ -56,4 +57,4 @@ class EmailManager {
     }
 }
 
-module.exports = EmailManager;
+export default EmailManager;
