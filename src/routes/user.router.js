@@ -22,7 +22,6 @@ router.put("/premium/:uid", userController.cambiarRolPremium);
 import UserRepository from "../repositories/user.repository.js";
 
 const userRepository = new UserRepository();
-//Vamos a crear un middleware para Multer y lo vamos a importar: 
 import upload from "../middleware/multer.js";
 
 
