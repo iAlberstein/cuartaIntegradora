@@ -12,7 +12,7 @@ class ProductRepository {
             const existeProducto = await ProductModel.findOne({ code: code });
 
             if (existeProducto) {
-                console.log("El código debe ser único");
+                console.log("El código debe ser único.");
                 return;
             }
 
@@ -40,38 +40,35 @@ class ProductRepository {
             throw new Error("Error");
         }
     }
+    
 
-    async obtenerProductos(limit = 10, page = 1, sort, query) {
+    async obtenerProductos(limit = 0, page = 1, sort, query, filters = {}) {
         try {
             const skip = (page - 1) * limit;
-
-            let queryOptions = {};
-
+    
+            let queryOptions = { ...filters };
+    
             if (query) {
-                queryOptions = { category: query };
+                queryOptions.category = query;
             }
-
+    
             const sortOptions = {};
             if (sort) {
-                if (sort === 'asc' || sort === 'desc') {
-                    sortOptions.price = sort === 'asc' ? 1 : -1;
-                }
+                sortOptions.price = sort === 'asc' ? 1 : -1;
             }
-
+    
             const productos = await ProductModel
                 .find(queryOptions)
                 .sort(sortOptions)
                 .skip(skip)
                 .limit(limit);
-
+    
             const totalProducts = await ProductModel.countDocuments(queryOptions);
-            
+    
             const totalPages = Math.ceil(totalProducts / limit);
-            
             const hasPrevPage = page > 1;
             const hasNextPage = page < totalPages;
-            
-
+    
             return {
                 docs: productos,
                 totalPages,
@@ -87,6 +84,8 @@ class ProductRepository {
             throw new Error("Error");
         }
     }
+    
+    
 
     async obtenerProductoPorId(id) {
         try {
@@ -96,8 +95,8 @@ class ProductRepository {
                 console.log("Producto no encontrado");
                 return null;
             }
-
-            console.log("Producto encontrado");
+            
+            console.log("Producto encontrado", producto);
             return producto;
         } catch (error) {
             throw new Error("Error");

@@ -5,38 +5,64 @@ const productRepository = new ProductRepository();
 class ProductController {
 
     async addProduct(req, res) {
+        console.log("Datos de req.user:", req.user); // Debugging
+    
         const nuevoProducto = req.body;
+        const owner = req.user ? req.user.email : 'admin'; // Verifica si req.user.email está definido
+    
+        console.log("Owner a asignar:", owner); // Debugging
+    
         try {
-            await productRepository.agregarProducto(nuevoProducto);
+            const producto = await productRepository.agregarProducto({
+                ...nuevoProducto,
+                owner
+            });
+    
+            res.status(201).json(producto);
         } catch (error) {
             res.status(500).send("Error");
         }
     }
+    
+    
+    
 
     async getProducts(req, res) {
         try {
             let { limit = 10, page = 1, sort, query } = req.query;
-
-            const productos = await productRepository.obtenerProductos(limit, page, sort, query);
-           
+            
+            let filters = {};
+    
+            // Filtrar productos según el rol del usuario
+            if (req.user) {
+                if (req.user.role === 'premium') {
+                    // Usuarios premium no ven sus propios productos
+                    filters.owner = { $ne: req.user.email };
+                } 
+                // En el futuro, podrías agregar más filtros para otros roles si es necesario.
+            }
+    
+            const productos = await productRepository.obtenerProductos(limit, page, sort, query, filters);
             res.json(productos);
-        } catch (error) { 
+    
+        } catch (error) {
             res.status(500).send("Error");
         }
     }
+    
+    
 
     async getProductById(req, res) {
         const id = req.params.pid;
         try {
-            const buscado = await productRepository.obtenerProductoPorId(id);
-            if (!buscado) {
-                return res.json({
-                    error: "Producto no encontrado"
-                });
+            const producto = await productRepository.obtenerProductoPorId(id);
+
+            if (!producto) {
+                return res.status(404).render("404", { message: "Producto no encontrado" });
             }
-            res.json(buscado);
+            res.render("productinfo", producto );
         } catch (error) {
-            res.status(500).send("Error");
+            res.status(500).send("Error interno del servidor");
         }
     }
 

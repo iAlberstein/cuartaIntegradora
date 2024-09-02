@@ -91,8 +91,9 @@ class UserController {
             const isPremium = req.user.role === 'premium';
             const userDto = new UserDTO(req.user.first_name, req.user.last_name, req.user.role);
             const isAdmin = req.user.role === 'admin';
-
-            res.render("profile", { user: userDto, isPremium, isAdmin });
+            const cartId = req.user.cart;
+            
+            res.render("profile", { user: userDto, isPremium, isAdmin, cartId });
         } catch (error) {
             res.status(500).send('Error interno del servidor');
         }
@@ -219,6 +220,39 @@ class UserController {
 
         } catch (error) {
             res.status(500).send("Error del servidor");
+        }
+    }
+    async listUsers(req, res) {
+        try {
+            const users = await this.userRepository.findAll(); // Asegúrate de que `findAll` esté definido en tu repositorio
+            res.render('users', { users }); // Asegúrate de que 'users' es la vista correcta para la lista de usuarios
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error al obtener la lista de usuarios');
+        }
+    }
+    async updateUserRole(req, res) {
+        const { userId } = req.params;
+        const { role } = req.body;
+
+        const validRoles = ['user', 'premium', 'admin'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).send('Rol inválido');
+        }
+
+        try {
+            const user = await this.userRepository.findById(userId);
+            if (!user) {
+                return res.status(404).send('Usuario no encontrado');
+            }
+
+            user.role = role;
+            await user.save();
+
+            res.redirect('/users'); // Redirige a la vista de la lista de usuarios después de actualizar el rol
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error al actualizar el rol');
         }
     }
 

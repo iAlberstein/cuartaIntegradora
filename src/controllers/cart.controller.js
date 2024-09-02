@@ -35,35 +35,25 @@ class CartController {
             res.status(500).send("Error");
         }
     }
-
-    async agregarProductoEnCarrito(req, res) {
-        const cartId = req.params.cid;
-        const productId = req.params.pid;
-        const quantity = req.body.quantity || 1;
-        try {
-            await cartRepository.agregarProducto(cartId, productId, quantity);
-            const carritoID = (req.user.cart).toString();
-
-            res.redirect(`/carts/${carritoID}`)
-        } catch (error) {
-            res.status(500).send("Error");
-        }
-    }
     
     async agregarProductoEnCarrito(req, res) {
         const cartId = req.params.cid;
         const productId = req.params.pid;
         const quantity = parseInt(req.body.quantity) || 1;
-        console.log("Cantidad que recibo:", req.body.quantity);
+    
+        console.log("Cantidad que recibo:", quantity);
+        console.log("Cart ID en productinfo:", res.locals.cartId); // Debugging
+    
         try {
             await cartRepository.agregarProducto(cartId, productId, quantity);
-            const carritoID = (req.user.cart).toString();
-
-            res.redirect(`/carts/${carritoID}`)
+            const carritoID = cartId;
+    
+            res.redirect(`/carts/${carritoID}`);
         } catch (error) {
             res.status(500).send("Error al agregar el producto al carrito");
         }
     }
+    
 
     async eliminarProductoDeCarrito(req, res) {
         const cartId = req.params.cid;

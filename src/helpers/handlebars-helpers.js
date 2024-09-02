@@ -9,6 +9,6 @@ const ifEqual = (a, b, options) => {
   };
   
   // Exportar el helper ifEqual
-  export { ifEqual };
+  export { ifEqual};
 
   

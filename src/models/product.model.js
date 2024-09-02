@@ -11,6 +11,9 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    descriptionExpand: {
+        type: String,
+    },
     price: {
         type: Number,
         required: true
@@ -40,7 +43,6 @@ const productSchema = new mongoose.Schema({
     },
     owner: {
         type: String, 
-        required: true, 
         default: 'admin'
         }
     })

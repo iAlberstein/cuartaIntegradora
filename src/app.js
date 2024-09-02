@@ -1,6 +1,5 @@
 import express from "express";
 const app = express();
-import exphbs from "express-handlebars";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
@@ -8,6 +7,9 @@ import cors from "cors";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import './database.js';
+
+import exphbs from 'express-handlebars';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +22,8 @@ import viewsRouter from "./routes/views.router.js";
 import userRouter from "./routes/user.router.js";
 
 
+
+
 //Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -27,10 +31,13 @@ app.use(express.static("./src/public"));
 
 app.use(cors());
 
+
+
 //Passport 
 app.use(passport.initialize());
 initializePassport();
 app.use(cookieParser());
+
 
 //AuthMiddleware
 import authMiddleware from "./middleware/authmiddleware.js";
@@ -42,6 +49,17 @@ app.use(authMiddleware);
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
+
+//Me aseguro que el cartId esté disponible desde todas las vistas handlebars. 
+app.use((req, res, next) => {
+    if (req.user && req.user.cart) {
+        res.locals.cartId = req.user.cart._id;
+    }
+    next();
+});
+
+
+
 
 
 //Rutas: 
@@ -70,7 +88,7 @@ const swaggerOptions = {
     definition: {
         openapi: "3.0.1",
         info: {
-            title: "Documentacion de la App Tienda Marolio",
+            title: "Documentacion de la App Tiketera",
             description: "E-commerce"
         }
     },

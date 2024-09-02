@@ -1,11 +1,18 @@
-import passport from "passport";
-import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
-import UserModel from "../models/user.model.js";
+import passport from 'passport';
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import UserModel from '../models/user.model.js';
 
+const cookieExtractor = (req) => {
+    let token = null;
+    if (req && req.cookies) {
+        token = req.cookies["coderCookieToken"];
+    }
+    return token;
+}
 
 const initializePassport = () => {
     passport.use("jwt", new JWTStrategy({
-        jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]), // Utiliza ExtractJwt.fromExtractors para extraer el token de la cookie
+        jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
         secretOrKey: "coderhouse"
     }, async (jwt_payload, done) => {
         try {
@@ -14,19 +21,11 @@ const initializePassport = () => {
             if (!user) {
                 return done(null, false);
             }
-            return done(null, user);
+            return done(null, user); // Devuelve el usuario encontrado
         } catch (error) {
             return done(error);
         }
     }));
-}
-
-const cookieExtractor = (req) => {
-    let token = null;
-    if(req && req.cookies) {
-        token = req.cookies["coderCookieToken"]
-    }
-    return token;
 }
 
 export default initializePassport;
