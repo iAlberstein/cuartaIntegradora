@@ -31,6 +31,11 @@ class SocketManager {
                 const messages = await MessageModel.find();
                 socket.emit("message", messages);
             });
+            socket.on("authenticate", (data) => {
+                const {email} = data; 
+                socket.emit("userAuthenticated", email);
+               });
+            
         });
     }
 

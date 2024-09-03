@@ -5,9 +5,11 @@ const productRepository = new ProductRepository();
 class ProductController {
 
     async addProduct(req, res) {
-        const nuevoProducto = req.body;
+        const nuevoProducto = { ...req.body, owner: req.user.email }; 
+        
         try {
             await productRepository.agregarProducto(nuevoProducto);
+            res.json({ message: 'Producto agregado correctamente' });
         } catch (error) {
             res.status(500).send("Error");
         }
