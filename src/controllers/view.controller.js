@@ -115,7 +115,7 @@ class ViewsController {
             const usuario = req.user;
             let filter = {};
     
-            if (usuario.role === 'premium') {
+            if (usuario && usuario.role === 'premium') {
                 filter = { owner: usuario.email }; // Solo productos del usuario
             }
     
@@ -131,6 +131,7 @@ class ViewsController {
             res.status(500).json({ error: "Error interno del servidor" });
         }
     }
+    
     
     
     

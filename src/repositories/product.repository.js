@@ -1,6 +1,5 @@
 import ProductModel from "../models/product.model.js";
 
-
 class ProductRepository {
     async agregarProducto({ title, description, price, img, code, stock, category, thumbnails, owner }) {
         try {
@@ -8,11 +7,11 @@ class ProductRepository {
                 console.log("Todos los campos son obligatorios");
                 return;
             }
-
+            
             const existeProducto = await ProductModel.findOne({ code: code });
 
             if (existeProducto) {
-                console.log("El código debe ser único.");
+                console.log("El código debe ser único");
                 return;
             }
 
@@ -40,6 +39,7 @@ class ProductRepository {
             throw new Error("Error");
         }
     }
+
     
 
     async obtenerProductos(limit = 0, page = 1, sort, query, filters = {}) {

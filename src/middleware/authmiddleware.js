@@ -1,6 +1,5 @@
 import passport from 'passport';
 
-
 function authMiddleware(req, res, next) {
     passport.authenticate('jwt', { session: false }, (err, user, info) => {
         if (err) {
@@ -15,3 +14,4 @@ function authMiddleware(req, res, next) {
 }
 
 export default authMiddleware;
+

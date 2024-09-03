@@ -62,11 +62,11 @@ app.use((req, res, next) => {
 
 
 
-//Rutas: 
-app.use("/api/products", productsRouter);
-app.use("/api/carts", cartsRouter);
-app.use("/api/users", userRouter);
-app.use("/", viewsRouter);
+// Rutas protegidas por autenticación
+app.use("/api/products", authMiddleware, productsRouter);
+app.use("/api/carts", authMiddleware, cartsRouter);
+app.use("/api/users", authMiddleware, userRouter);
+app.use("/", authMiddleware, viewsRouter);
 
 const httpServer = app.listen(PUERTO, () => {
     console.log(`Servidor escuchando en el puerto ${PUERTO}`);
