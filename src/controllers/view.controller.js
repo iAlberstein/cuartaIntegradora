@@ -1,6 +1,7 @@
 import ProductModel from "../models/product.model.js";
 import CartRepository from "../repositories/cart.repository.js";
 const cartRepository = new CartRepository();
+import UserModel from "../models/user.model.js";
 
 
 class ViewsController {
@@ -176,6 +177,17 @@ class ViewsController {
     async renderPremium(req, res) {
         res.render("panel-premium");
     }
+
+    async renderUsers(req, res) {
+        try {
+            const users = await UserModel.find().lean();  // Aquí agregas .lean()
+            res.render('users', { users });
+        } catch (error) {
+            console.error('Error obteniendo usuarios:', error);
+            res.status(500).send('Error obteniendo usuarios');
+        }
+    }
+    
 }
 
 export default ViewsController;

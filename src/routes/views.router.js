@@ -38,4 +38,6 @@ router.get("/confirmacion-envio", viewsController.renderConfirmacion);
 // Ruta para panel premium
 router.get("/panel-premium", checkUserRole(['premium']), passport.authenticate('jwt', { session: false }), viewsController.renderPremium);
 
+router.get("/users", viewsController.renderUsers);
+
 export default router;
