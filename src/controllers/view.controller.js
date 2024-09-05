@@ -116,11 +116,13 @@ class ViewsController {
             let filter = {};
     
             if (user && user.role === 'premium') {
-                filter = { owner: user.email }; // Solo productos del usuario
+                filter = { owner: user.email };
+            } else if (user && user.role === 'admin') {
+                filter = {}; // Mostrar todos los productos
             }
-    
+
             const productos = await ProductModel.find(filter);
-    
+            console.log(user.role)
             res.render("realtimeproducts", {
                 productos,
                 role: user.role,
@@ -131,8 +133,6 @@ class ViewsController {
             res.status(500).json({ error: "Error interno del servidor" });
         }
     }
-    
-    
     
     
     async renderManageUsers(req, res) {

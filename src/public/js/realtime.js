@@ -7,8 +7,19 @@ const email = document.getElementById("email").value; // Utiliza el valor
 // Escuchando los productos enviados por el servidor
 socket.on("productos", (data) => {
     const email = document.getElementById("email").value; // Utiliza el email del usuario
-    const productosPropios = data.docs.filter(product => product.owner === email);
-    renderProductos(productosPropios);
+    const role = document.getElementById("role").value; // Utiliza el rol del usuario
+
+    let productosAMostrar;
+
+    if (role === "admin") {
+        // Si es admin, muestra todos los productos
+        productosAMostrar = data.docs;
+    } else if (role === "premium") {
+        // Si es premium, muestra solo los productos del usuario
+        productosAMostrar = data.docs.filter(product => product.owner === email);
+    }
+
+    renderProductos(productosAMostrar);
 });
 
 // Función para renderizar los productos y manejar la búsqueda
@@ -55,6 +66,7 @@ const mostrarProductos = (productos) => {
         });
     });
 };
+
 
 
 // Función para eliminar un producto
