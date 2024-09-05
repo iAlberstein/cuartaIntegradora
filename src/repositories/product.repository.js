@@ -1,5 +1,6 @@
 import ProductModel from "../models/product.model.js";
 
+
 class ProductRepository {
     async agregarProducto({ title, description, price, img, code, stock, category, thumbnails, owner }) {
         try {

@@ -2,16 +2,33 @@ import ProductRepository from "../repositories/product.repository.js";
 const productRepository = new ProductRepository();
 
 
+
 class ProductController {
 
     async addProduct(req, res) {
-        const nuevoProducto = { ...req.body, owner: req.user.email }; 
-        
         try {
-            await productRepository.agregarProducto(nuevoProducto);
-            res.json({ message: 'Producto agregado correctamente' });
+            
+            const { title, description, price, img, code, stock, category, thumbnails } = req.body;
+
+            const newProduct = await productRepository.agregarProducto({
+                title,
+                description,
+                price,
+                img,
+                code,
+                stock,
+                category,
+                thumbnails,
+                owner
+            });
+
+            if (newProduct) {
+                res.status(201).json({ message: 'Producto agregado exitosamente', product: newProduct });
+            } else {
+                res.status(400).json({ message: 'Error al agregar el producto' });
+            }
         } catch (error) {
-            res.status(500).send("Error");
+            res.status(500).json({ message: 'Error interno del servidor' });
         }
     }
     

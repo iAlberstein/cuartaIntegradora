@@ -1,8 +1,14 @@
 const socket = io(); 
+const role = document.getElementById("role").value; // Utiliza el valor
+const email = document.getElementById("email").value; // Utiliza el valor
+
+
 
 // Escuchando los productos enviados por el servidor
 socket.on("productos", (data) => {
-    renderProductos(data);
+    const email = document.getElementById("email").value; // Utiliza el email del usuario
+    const productosPropios = data.docs.filter(product => product.owner === email);
+    renderProductos(productosPropios);
 });
 
 // Función para renderizar los productos y manejar la búsqueda
@@ -12,7 +18,7 @@ const renderProductos = (productos) => {
 
     const filtrarProductos = () => {
         const query = searchInput.value.toLowerCase();
-        const productosFiltrados = productos.docs.filter(item => 
+        const productosFiltrados = productos.filter(item => 
             item.title.toLowerCase().includes(query) ||
             item.description.toLowerCase().includes(query)
         );
@@ -23,7 +29,7 @@ const renderProductos = (productos) => {
     searchInput.addEventListener("input", filtrarProductos);
 
     // Muestra todos los productos inicialmente
-    mostrarProductos(productos.docs);
+    mostrarProductos(productos);
 };
 
 // Función para mostrar los productos en el contenedor
@@ -50,6 +56,7 @@ const mostrarProductos = (productos) => {
     });
 };
 
+
 // Función para eliminar un producto
 const eliminarProducto = (id) => {
     socket.emit("eliminarProducto", id);
@@ -60,8 +67,16 @@ document.getElementById("btnEnviar").addEventListener("click", () => {
     agregarProducto();
 });
 
+
+
+
 // Función para agregar un nuevo producto
 const agregarProducto = () => {
+
+    const role = document.getElementById("role").value; // Utiliza el valor
+    const email = document.getElementById("email").value; // Utiliza el valor
+
+    
     const producto = {
         title: document.getElementById("title").value,
         description: document.getElementById("description").value,
@@ -72,7 +87,8 @@ const agregarProducto = () => {
         stock: document.getElementById("stock").value,
         category: document.getElementById("category").value,
         status: document.getElementById("status").value === "true",
+        owner: role === "premium" ? email : "pepe"
     };
-
+    
     socket.emit("agregarProducto", producto);
 }

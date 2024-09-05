@@ -11,6 +11,10 @@
         <div class="rptedit">
             <h2>Formulario para agregar productos</h2>
             <form class="formrtp">
+                <p>{{email}}</p>
+                <input type="hidden" id="role" value="{{role}}">
+                <input type="hidden" id="email" value="{{email}}">
+
                 <input type="text" id="title" placeholder="Titulo">
                 <input type="text" id="description" placeholder="Descripcion">
                 <input type="text" id="descriptionExpand" placeholder="Descripcion extendida">
@@ -34,4 +38,4 @@
 
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-<script src="js/realtime.js"></script>
+<script type="module" src="js/realtime.js"></script>

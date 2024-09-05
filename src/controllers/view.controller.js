@@ -112,19 +112,19 @@ class ViewsController {
 
     async renderRealTimeProducts(req, res) {
         try {
-            const usuario = req.user;
+            const user = req.user;
             let filter = {};
     
-            if (usuario && usuario.role === 'premium') {
-                filter = { owner: usuario.email }; // Solo productos del usuario
+            if (user && user.role === 'premium') {
+                filter = { owner: user.email }; // Solo productos del usuario
             }
     
             const productos = await ProductModel.find(filter);
     
             res.render("realtimeproducts", {
                 productos,
-                role: usuario.role,
-                email: usuario.email
+                role: user.role,
+                email: user.email
             });
         } catch (error) {
             console.log("Error en la vista real time", error);

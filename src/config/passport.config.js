@@ -29,3 +29,4 @@ const cookieExtractor = (req) => {
 }
 
 export default initializePassport;
+
